@@ -692,6 +692,25 @@ export class GameCommands {
       time: Date.now(),
     };
   }
+
+  /**
+   * 获取boss伤害排行
+   * @param {*} ack
+   * @param {*} seq
+   * @param {*} params
+   * @returns
+   */
+  legion_bossrank(ack = 0, seq = 0, params = {}) {
+    return {
+      ack,
+      body: this.g_utils.bon.encode({
+        ...params,
+      }),
+      cmd: "legion_bossrank",
+      seq,
+      time: Date.now(),
+    };
+  }
 }
 
 // 三国答题题库（基于mirror代码中的题目）

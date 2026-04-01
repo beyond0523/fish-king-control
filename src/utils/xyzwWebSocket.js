@@ -256,6 +256,7 @@ export function registerDefaultCommands(reg) {
     // 军团匹配和签到
     .register("legionmatch_rolesignup")
     .register("legion_signin")
+    .register("legion_bossrank")
 
     // 钓鱼
     .register("artifact_lottery", { lotteryNumber: 1, newFree: true, type: 1 })

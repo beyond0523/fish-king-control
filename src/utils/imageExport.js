@@ -1,3 +1,5 @@
+import { bMobile } from "@/conts/common";
+
 /**
  * 将Canvas导出为图片并下载
  * 兼容处理移动端大图导出问题
@@ -18,7 +20,7 @@ export const downloadCanvasAsImage = (canvas, filename) => {
         // 尝试使用 navigator.share (主要针对移动端)
         // 注意：navigator.share 需要在 HTTPS 环境下，且必须由用户手势触发
         // 这里作为一种尝试，如果失败则回退到下载链接
-        if (navigator.share && navigator.canShare && navigator.canShare({ files: [new File([blob], filename, { type: blob.type })] })) {
+        if (bMobile && navigator.share && navigator.canShare && navigator.canShare({ files: [new File([blob], filename, { type: blob.type })] })) {
             const file = new File([blob], filename, { type: blob.type });
             navigator.share({
                 files: [file],

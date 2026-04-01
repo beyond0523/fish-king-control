@@ -307,6 +307,14 @@
           >
             <CarScoreInfo inline />
           </n-tab-pane>
+
+          <n-tab-pane
+            name="bossrank"
+            tab="BOSS伤害信息"
+            display-directive="show:lazy"
+          >
+            <BossRank inline />
+          </n-tab-pane>
         </n-tabs>
       </div>
     </template>
@@ -599,6 +607,7 @@ import { Copy, Refresh, People, BarChart, Flame, Skull, Megaphone, Person, Shiel
 import ClubHistoryRecords from "./ClubHistoryRecords.vue";
 import ClubWeirdTowerInfo from "./ClubWeirdTowerInfo.vue";
 import CarScoreInfo from "./CarScoreInfo.vue";
+import BossRank from "./BossRank.vue";
 import { $emit } from "@/stores/events";
 import { HERO_DICT, legacycolor, HeroFillInfo, getLineupType, LINEUP_RULES } from "@/utils/HeroList";
 import html2canvas from 'html2canvas';

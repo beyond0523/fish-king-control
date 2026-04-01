@@ -8,6 +8,7 @@
  * @returns {string} 格式化的日期字符串 YYYY/MM/DD
  */
 import * as XLSX from "xlsx";
+import { computedKD } from "@/utils/base";
 
 export function getLastSaturday() {
   const today = new Date();
@@ -391,7 +392,7 @@ export function formatBattleRecordsForExport(roleDetailsList, queryDate) {
         member.winCnt || 0,
         member.loseCnt || 0,
         member.buildingCnt || 0,
-        (member.winCnt / member.loseCnt).toFixed(2),
+        computedKD(member.winCnt, member.loseCnt),
         Math.max(member.loseCnt - 6, 0),
       ]),
   ];
@@ -454,6 +455,21 @@ export function formatBattleRecordsForExport(roleDetailsList, queryDate) {
       formatTimestamp(battle.timestamp || 0),
     ]),
   ];
+
+  // 统计相关总数信息
+  const totalInfos = roleDetailsList.reduce((sum, m) => {
+    // 总击杀数
+    sum["totalWin"] = (sum["totalWin"] || 0) + m.winCnt || 0;
+    // 总死亡数
+    sum["totalLose"] = (sum["totalLose"] || 0) + m.loseCnt || 0;
+    // 总刨地数
+    sum["totalBuilding"] = (sum["totalBuilding"] || 0) + m.buildingCnt || 0;
+    // 总复活丹
+    sum["totalPill"] = (sum["totalPill"] || 0) + Math.max(m.loseCnt - 6, 0);
+
+    return sum;
+  }, {});
+
   // 创建工作簿
   const workbook = XLSX.utils.book_new();
   const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
@@ -466,13 +482,11 @@ export function formatBattleRecordsForExport(roleDetailsList, queryDate) {
         "总计",
         "",
         "",
-        roleDetailsList.reduce((sum, m) => sum + (m.winCnt || 0), 0),
-        roleDetailsList.reduce((sum, m) => sum + (m.loseCnt || 0), 0),
-        roleDetailsList.reduce((sum, m) => sum + (m.buildingCnt || 0), 0),
-        roleDetailsList.reduce(
-          (sum, m) => sum + (Math.max(m.loseCnt - 6, 0) || 0),
-          0,
-        ),
+        totalInfos.totalWin,
+        totalInfos.totalLose,
+        totalInfos.totalBuilding,
+        computedKD(totalInfos.totalWin, totalInfos.totalLose),
+        totalInfos.totalPill,
       ],
     ],
     { origin: -1 },

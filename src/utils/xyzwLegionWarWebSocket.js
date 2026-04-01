@@ -636,6 +636,8 @@
        'evotowerinforesp': 'evotower_getinfo',
        'evotower_fightresp': 'evotower_fight',
      'item_openpackresp': 'item_openpack',
+       // 查询俱乐部boss伤害排行
+       'legion_bossrankresp': 'legion_bossrank',
        // 咸王宝库
        'matchteam_getroleteaminforesp': 'matchteam_getroleteaminfo',
        'bosstower_getinforesp': 'bosstower_getinfo',
