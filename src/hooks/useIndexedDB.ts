@@ -33,6 +33,7 @@ interface UseIndexedDBReturn {
   deleteArrayBuffer: (key: string) => Promise<boolean>;
   clearAll: () => Promise<boolean>;
   getStorageInfo: () => Promise<{ totalSize: number; keyCount: number }>;
+  waitForReady: (key: number) => Promise<boolean>;
 }
 
 // 配置接口
@@ -243,6 +244,19 @@ export function useIndexedDB(config: DBConfig = {}): UseIndexedDBReturn {
     }
   };
 
+  /**
+   * 等待准备就绪
+   * @param timeout 
+   * @returns 
+   */
+  const waitForReady = async (timeout = 3000): Promise<boolean> => {
+    const startTime = Date.now();
+    while (!isReady.value && Date.now() - startTime < timeout) {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+    return isReady.value;
+  };
+
   initDB();
 
   return {
@@ -251,6 +265,7 @@ export function useIndexedDB(config: DBConfig = {}): UseIndexedDBReturn {
     error,
 
     // 方法
+    waitForReady,
     storeArrayBuffer,
     getArrayBuffer,
     getAllKeys,

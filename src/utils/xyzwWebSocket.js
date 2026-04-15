@@ -319,7 +319,11 @@ export function registerDefaultCommands(reg) {
     .register("warguess_getrank")
     .register("warguess_startguess")
     .register("warguess_getguesscoinreward")
+    // 助威商店购买
+    .register("warguess_storebuy")
     .register("legion_payloadsignup") // 蟠桃报名
+    // 江湖黑市购买
+    .register("activity_buystoregoods", { activityId: 9, goodsIndex: 0, buyNum: 1 })
 
     // 珍宝阁相关
     .register("collection_claimfreereward")
@@ -1102,6 +1106,7 @@ export class XyzwWebSocketClient {
       discount_getdiscountinforesp: "discount_getdiscountinfo",
       // 升星相关响应映射
       hero_heroupgradestarresp: "hero_heroupgradestar",
+      hero_rebirthresp: "hero_rebirth",
       hero_heroupgradelevelresp: "hero_heroupgradelevel",
       hero_heroupgradeorderresp: "hero_heroupgradeorder",
       book_upgraderesp: "book_upgrade",

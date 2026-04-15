@@ -67,3 +67,34 @@ export const formatNumber = (num: number) => {
   if (n >= 1e4) return (n / 1e4).toFixed(2) + "万";
   return String(n);
 };
+
+/**
+ * 获取当前token设置
+ * @param {string} tokenId tokenId
+ * @returns 
+ */
+export const getTokenSettings = (tokenId: string) => {
+  const defaultSettings = {
+    arenaFormation: 1,
+    towerFormation: 1,
+    weirdTowerFormation: 1,
+    bossFormation: 1,
+    taskCompleteFormation: 1,
+    bossTimes: 2,
+    claimBottle: true,
+    payRecruit: true,
+    openBox: true,
+    arenaEnable: true,
+    claimHangUp: true,
+    claimEmail: true,
+    blackMarketPurchase: true,
+  };
+
+  try {
+    const raw = localStorage.getItem(`daily-settings:${tokenId}`);
+    
+    return raw ? { ...defaultSettings, ...JSON.parse(raw) } : defaultSettings;
+  } catch (e) {
+    return defaultSettings;
+  }
+};

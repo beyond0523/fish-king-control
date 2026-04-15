@@ -22,3 +22,18 @@ export const isMobile = () => {
 
   return (isTouch && isSmallScreen) || isIPadPro;
 };
+
+/**
+ * 复制文本到剪贴板（高性能、非阻塞）
+ * @param {string} text - 要复制的文案
+ * @returns {Promise<boolean>} - 是否复制成功
+ */
+export async function copyText(text: string) {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch (err) {
+    console.error('复制失败:', err);
+    return false;
+  }
+}

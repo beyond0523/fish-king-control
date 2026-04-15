@@ -198,7 +198,7 @@
               </div>
             </div>
             <div class="team-tabs-right">
-              <n-button size="tiny" @click="exportLineups"> 导出 </n-button>
+              <n-button size="tiny" :disabled="savedLineups.length === 0" @click="exportLineups"> 导出 </n-button>
               <n-upload
                 :show-file-list="false"
                 :custom-request="importLineups"
@@ -206,148 +206,154 @@
               >
                 <n-button size="tiny">导入</n-button>
               </n-upload>
+              <n-button size="tiny" type="error" :disabled="savedLineups.length === 0" @click="confirmClearLineups">清空</n-button>
             </div>
           </div>
           <div class="lineups-list">
-            <div
-              v-for="(lineup, index) in getLineupsByTeamId(selectedTeamTab)"
-              :key="index"
-              class="lineup-card"
-            >
-              <div class="lineup-title-bar" @click="toggleLineupExpand(lineup)">
-                <div class="lineup-title-left">
-                  <span class="expand-icon">{{
-                    expandedLineup === lineup ? "▼" : "▶"
-                  }}</span>
-                  <span class="lineup-name">{{ lineup.name }}</span>
-                  <span
-                    v-if="
-                      lineup.weaponId !== undefined && lineup.weaponId !== null
-                    "
-                    class="lineup-weapon-tag"
-                  >
-                    {{ weapon[lineup.weaponId] || lineup.weaponId }}
-                  </span>
-                  <span class="lineup-time">{{
-                    formatTime(lineup.savedAt)
-                  }}</span>
+            <div v-if="savedLineups.length === 0" class="empty-tip">
+              暂无保存的阵容，点击"导入"或保存配置后开始使用
+            </div>
+            <div v-else>
+              <div
+                v-for="(lineup, index) in getLineupsByTeamId(selectedTeamTab)"
+                :key="index"
+                class="lineup-card"
+              >
+                <div class="lineup-title-bar" @click="toggleLineupExpand(lineup)">
+                  <div class="lineup-title-left">
+                    <span class="expand-icon">{{
+                      expandedLineup === lineup ? "▼" : "▶"
+                    }}</span>
+                    <span class="lineup-name">{{ lineup.name }}</span>
+                    <span
+                      v-if="
+                        lineup.weaponId !== undefined && lineup.weaponId !== null
+                      "
+                      class="lineup-weapon-tag"
+                    >
+                      {{ weapon[lineup.weaponId] || lineup.weaponId }}
+                    </span>
+                    <span class="lineup-time">{{
+                      formatTime(lineup.savedAt)
+                    }}</span>
+                  </div>
+                  <div class="lineup-quick-actions">
+                    <n-button
+                      size="tiny"
+                      @click.stop="renameLineup(savedLineups.indexOf(lineup))"
+                    >
+                      重命名
+                    </n-button>
+                    <n-button
+                      size="tiny"
+                      @click.stop="showTechModal(lineup)"
+                      :disabled="
+                        !lineup.legionResearch ||
+                        Object.keys(lineup.legionResearch).length === 0
+                      "
+                    >
+                      科技
+                    </n-button>
+                    <n-button
+                      type="error"
+                      size="tiny"
+                      @click.stop="deleteLineup(savedLineups.indexOf(lineup))"
+                    >
+                      删除
+                    </n-button>
+                    <n-button
+                      type="primary"
+                      size="tiny"
+                      @click.stop="
+                        applyLineup(lineup);
+                        savedLineupsModalVisible = false;
+                      "
+                      :loading="lineup.applying"
+                      :disabled="lineup.teamId !== currentTeamId"
+                    >
+                      应用
+                    </n-button>
+                  </div>
                 </div>
-                <div class="lineup-quick-actions">
-                  <n-button
-                    size="tiny"
-                    @click.stop="renameLineup(savedLineups.indexOf(lineup))"
-                  >
-                    重命名
-                  </n-button>
-                  <n-button
-                    size="tiny"
-                    @click.stop="showTechModal(lineup)"
-                    :disabled="
-                      !lineup.legionResearch ||
-                      Object.keys(lineup.legionResearch).length === 0
-                    "
-                  >
-                    科技
-                  </n-button>
-                  <n-button
-                    type="error"
-                    size="tiny"
-                    @click.stop="deleteLineup(savedLineups.indexOf(lineup))"
-                  >
-                    删除
-                  </n-button>
-                  <n-button
-                    type="primary"
-                    size="tiny"
-                    @click.stop="
-                      applyLineup(lineup);
-                      savedLineupsModalVisible = false;
-                    "
-                    :loading="lineup.applying"
-                    :disabled="lineup.teamId !== currentTeamId"
-                  >
-                    应用
-                  </n-button>
-                </div>
-              </div>
-              <div v-if="expandedLineup === lineup" class="lineup-detail">
-                <div class="lineup-heroes-row">
-                  <div
-                    v-for="(hero, hIdx) in lineup.heroes"
-                    :key="hIdx"
-                    class="lineup-hero-card"
-                  >
-                    <img
-                      v-if="getHeroAvatar(hero.heroId)"
-                      :src="getHeroAvatar(hero.heroId)"
-                      class="hero-avatar"
-                    />
-                    <div v-else class="hero-avatar-placeholder">
-                      {{ getHeroName(hero.heroId)?.[0] || "?" }}
-                    </div>
-                    <div class="hero-info-small">
-                      <div class="hero-header-small">
-                        <div class="hero-name-small">
-                          {{ getHeroName(hero.heroId) || `武将${hero.heroId}` }}
-                        </div>
-                        <div v-if="hero.level" class="hero-level-small">
-                          Lv.{{ formatLevel(hero.level) }}
-                        </div>
+                <div v-if="expandedLineup === lineup" class="lineup-detail">
+                  <div class="lineup-heroes-row">
+                    <div
+                      v-for="(hero, hIdx) in lineup.heroes"
+                      :key="hIdx"
+                      class="lineup-hero-card"
+                    >
+                      <img
+                        v-if="getHeroAvatar(hero.heroId)"
+                        :src="getHeroAvatar(hero.heroId)"
+                        class="hero-avatar"
+                      />
+                      <div v-else class="hero-avatar-placeholder">
+                        {{ getHeroName(hero.heroId)?.[0] || "?" }}
                       </div>
-                      <div v-if="hero.fishId" class="hero-fish-info">
-                        <div class="hero-fish-row">
-                          <span class="hero-fish-name">
-                            {{ getFishNameById(hero.fishId) }}
-                            <span
-                              v-if="hero.skillId"
-                              class="hero-fish-skill-name"
-                            >
-                              {{ getPearlSkillNameById(hero.skillId) }}
-                            </span>
-                          </span>
-                          <div
-                            v-if="getSlotColors(hero.slotMap)"
-                            class="hero-fish-slots"
-                          >
-                            <span
-                              v-for="(color, idx) in getSlotColors(
-                                hero.slotMap,
-                              )"
-                              :key="idx"
-                              class="slot-dot"
-                              :style="{ backgroundColor: color }"
-                            ></span>
+                      <div class="hero-info-small">
+                        <div class="hero-header-small">
+                          <div class="hero-name-small">
+                            {{ getHeroName(hero.heroId) || `武将${hero.heroId}` }}
+                          </div>
+                          <div v-if="hero.level" class="hero-level-small">
+                            Lv.{{ formatLevel(hero.level) }}
                           </div>
                         </div>
-                      </div>
-                      <div v-if="hero.power" class="hero-stats-small">
-                        <div class="stat-row-small">
-                          <span class="stat-power"
-                            >战力{{ formatPower(hero.power) }}</span
-                          >
-                          <span class="stat-speed" v-if="hero.speed"
-                            >速度{{ hero.speed }}</span
-                          >
+                        <div v-if="hero.fishId" class="hero-fish-info">
+                          <div class="hero-fish-row">
+                            <span class="hero-fish-name">
+                              {{ getFishNameById(hero.fishId) }}
+                              <span
+                                v-if="hero.skillId"
+                                class="hero-fish-skill-name"
+                              >
+                                {{ getPearlSkillNameById(hero.skillId) }}
+                              </span>
+                            </span>
+                            <div
+                              v-if="getSlotColors(hero.slotMap)"
+                              class="hero-fish-slots"
+                            >
+                              <span
+                                v-for="(color, idx) in getSlotColors(
+                                  hero.slotMap,
+                                )"
+                                :key="idx"
+                                class="slot-dot"
+                                :style="{ backgroundColor: color }"
+                              ></span>
+                            </div>
+                          </div>
                         </div>
-                        <div class="stat-row-small">
-                          <span class="stat-attack" v-if="hero.attack"
-                            >攻击{{ formatPower(hero.attack) }}</span
-                          >
-                          <span class="stat-hp" v-if="hero.hp"
-                            >血量{{ formatPower(hero.hp) }}</span
-                          >
+                        <div v-if="hero.power" class="hero-stats-small">
+                          <div class="stat-row-small">
+                            <span class="stat-power"
+                              >战力{{ formatPower(hero.power) }}</span
+                            >
+                            <span class="stat-speed" v-if="hero.speed"
+                              >速度{{ hero.speed }}</span
+                            >
+                          </div>
+                          <div class="stat-row-small">
+                            <span class="stat-attack" v-if="hero.attack"
+                              >攻击{{ formatPower(hero.attack) }}</span
+                            >
+                            <span class="stat-hp" v-if="hero.hp"
+                              >血量{{ formatPower(hero.hp) }}</span
+                            >
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <div
-              v-if="getLineupsByTeamId(selectedTeamTab).length === 0"
-              class="no-lineup-tip"
-            >
-              暂无保存的阵容
+              <div
+                v-if="getLineupsByTeamId(selectedTeamTab).length === 0"
+                class="no-lineup-tip"
+              >
+                暂无保存的阵容
+              </div>
             </div>
           </div>
         </div>
@@ -1110,6 +1116,7 @@ const showHeroRefineModal = async (hero) => {
         "role_getroleinfo",
         {},
       );
+      await delay(COMMAND_DELAY);
       const role = roleInfo?.role || roleInfo;
       const heroes = role?.heroes || {};
       allHeroesData.value = heroes;
@@ -1122,6 +1129,7 @@ const showHeroRefineModal = async (hero) => {
       message.warning("未找到该武将的装备数据");
     }
   } catch (error) {
+    message.error(`获取装备信息失败: ${err.message}`);
   } finally {
     refineModalLoading.value = false;
   }
@@ -1156,61 +1164,92 @@ const selectExchangeHero = (hero) => {
   exchangeTargetHeroId.value = hero.id;
 };
 
-const confirmHeroAction = () => {
+const confirmHeroAction = async () => {
   if (!exchangeTargetHeroId.value) {
     message.warning("请选择武将");
     return;
   }
 
-  if (Object.keys(editingTeamHeroes.value).length === 0) {
-    currentTeamHeroes.value.forEach((h) => {
-      editingTeamHeroes.value[h.position] = {
-        heroId: h.heroId,
-        level: h.level || null,
-        artifactId: h.artifactId || null,
-        attachmentUid: h.attachmentUid || null,
+  if (!tokenStore.selectedToken) {
+    message.warning("请先选择Token");
+    return;
+  }
+
+  const tokenId = tokenStore.selectedToken.id;
+
+  try {
+    if (exchangeMode.value === "add") {
+      const slot = getFirstEmptySlot();
+      // 发送上阵命令到服务器
+      await tokenStore.sendMessageWithPromise(
+        tokenId,
+        "hero_gointobattle",
+        { heroId: exchangeTargetHeroId.value, slot },
+        8000, // 增加超时时间到8秒
+      );
+
+      // 前端更新数据
+      const targetHeroData
+        = roleHeroesData.value[String(exchangeTargetHeroId.value)];
+      const currentTeamHeroInfo = currentTeamInfo.value?.[slot];
+      editingTeamHeroes.value[slot] = {
+        heroId: exchangeTargetHeroId.value,
+        level: currentTeamHeroInfo?.level || targetHeroData?.level || null,
+        artifactId: targetHeroData?.artifactId || null,
+        attachmentUid: targetHeroData?.attachmentUid || null,
       };
-    });
-  }
+      message.success(
+        `${getHeroName(exchangeTargetHeroId.value)} 已上阵到位置 ${slot + 1}`,
+      );
+    } else {
+      if (!exchangeHero.value) {
+        message.warning("请选择要更换的武将");
+        return;
+      }
+      // 更换武将：先下阵当前武将，再上阵新武将
+      await tokenStore.sendMessageWithPromise(
+        tokenId,
+        "hero_gobackbattle",
+        { slot: exchangeHero.value.position },
+        8000, // 增加超时时间到8秒
+      );
+      await delay(100);
+      await tokenStore.sendMessageWithPromise(
+        tokenId,
+        "hero_gointobattle",
+        { heroId: exchangeTargetHeroId.value, slot: exchangeHero.value.position },
+        8000, // 增加超时时间到8秒
+      );
 
-  if (exchangeMode.value === "add") {
-    const slot = getFirstEmptySlot();
-    const targetHeroData =
-      roleHeroesData.value[String(exchangeTargetHeroId.value)];
-    const currentTeamHeroInfo = currentTeamInfo.value?.[slot];
-    editingTeamHeroes.value[slot] = {
-      heroId: exchangeTargetHeroId.value,
-      level: currentTeamHeroInfo?.level || targetHeroData?.level || null,
-      artifactId: targetHeroData?.artifactId || null,
-      attachmentUid: targetHeroData?.attachmentUid || null,
-    };
-    message.success(
-      `${getHeroName(exchangeTargetHeroId.value)} 已上阵到位置 ${slot + 1}`,
-    );
-  } else {
-    if (!exchangeHero.value) {
-      message.warning("请选择要更换的武将");
-      return;
+      // 前端更新数据
+      const originalArtifactId = exchangeHero.value.artifactId;
+      const originalAttachmentUid = exchangeHero.value.attachmentUid;
+      const targetHeroData
+        = roleHeroesData.value[String(exchangeTargetHeroId.value)];
+      editingTeamHeroes.value[exchangeHero.value.position] = {
+        heroId: exchangeTargetHeroId.value,
+        level: targetHeroData?.level || null,
+        artifactId: originalArtifactId,
+        attachmentUid: originalAttachmentUid,
+      };
+      message.success(
+        `已将 ${getHeroName(exchangeHero.value.heroId)} 更换为 ${getHeroName(exchangeTargetHeroId.value)}`,
+      );
     }
-    const originalArtifactId = exchangeHero.value.artifactId;
-    const originalAttachmentUid = exchangeHero.value.attachmentUid;
-    const targetHeroData =
-      roleHeroesData.value[String(exchangeTargetHeroId.value)];
-    editingTeamHeroes.value[exchangeHero.value.position] = {
-      heroId: exchangeTargetHeroId.value,
-      level: targetHeroData?.level || null,
-      artifactId: originalArtifactId,
-      attachmentUid: originalAttachmentUid,
-    };
-    message.success(
-      `已将 ${getHeroName(exchangeHero.value.heroId)} 更换为 ${getHeroName(exchangeTargetHeroId.value)}`,
-    );
+  } catch (err) {
+    console.error("操作请求失败:", err);
+    // 即使请求失败，也尝试刷新数据验证操作是否成功
+    message.warning("操作请求超时，正在验证操作结果...");
+  } finally {
+    exchangeModalVisible.value = false;
+    // 无论成功失败，都延迟刷新数据
+    setTimeout(async () => {
+      await refreshTeamInfo();
+    }, 1500);
   }
-
-  exchangeModalVisible.value = false;
 };
 
-const removeHero = (hero) => {
+const removeHero = async (hero) => {
   if (Object.keys(editingTeamHeroes.value).length === 0) {
     currentTeamHeroes.value.forEach((h) => {
       editingTeamHeroes.value[h.position] = {
@@ -1222,8 +1261,28 @@ const removeHero = (hero) => {
     });
   }
 
-  delete editingTeamHeroes.value[hero.position];
-  message.success(`${getHeroName(hero.heroId)} 已下阵`);
+  try {
+    // 发送下阵命令到服务器
+    await tokenStore.sendMessageWithPromise(
+      tokenStore.selectedToken.id,
+      "hero_gobackbattle",
+      { slot: hero.position },
+      8000, // 增加超时时间到8秒
+    );
+
+    // 前端删除数据
+    delete editingTeamHeroes.value[hero.position];
+    message.success(`${getHeroName(hero.heroId)} 已下阵`);
+  } catch (err) {
+    console.error("下阵请求失败:", err);
+    // 即使请求失败，也尝试刷新数据验证操作是否成功
+    message.warning("下阵请求超时，正在验证操作结果...");
+  } finally {
+    // 无论成功失败，都延迟刷新数据
+    setTimeout(async () => {
+      await refreshTeamInfo();
+    }, 1500);
+  }
 };
 
 const onDragStart = (event, hero) => {
@@ -1644,6 +1703,7 @@ const applyHeroLevel = async (
           heroId,
         },
       );
+      await delay(COMMAND_DELAY);
       if (result?.role?.heroes?.[heroId]?.order !== undefined) {
         actualCurrentOrder = result.role.heroes[heroId].order;
       } else {
@@ -1695,6 +1755,7 @@ const applyHeroLevel = async (
             heroId,
           },
         );
+        await delay(COMMAND_DELAY);
         if (result?.role?.heroes?.[heroId]?.order !== undefined) {
           actualCurrentOrder = result.role.heroes[heroId].order;
         } else {
@@ -1832,6 +1893,7 @@ const applyLineup = async (lineup) => {
                 slot: emptySlot + 1,
               },
             );
+            await delay(COMMAND_DELAY);
           } catch (err) {}
           await delay(COMMAND_DELAY);
         }
@@ -1841,12 +1903,14 @@ const applyLineup = async (lineup) => {
             heroId: currentHolderId,
             targetHeroId: targetHero.heroId,
           });
+          // 增加延迟，确保洗练数据随装备转移
+          await delay(1500);
         } catch (err) {}
         await delay(COMMAND_DELAY);
       }
     }
 
-    await delay(COMMAND_DELAY);
+    await delay(1000);
     const data1 = await fetchLatestData();
     await delay(COMMAND_DELAY);
     heroes = data1.heroes;
@@ -1869,6 +1933,8 @@ const applyLineup = async (lineup) => {
               slot: hero.position,
             },
           );
+          await delay(COMMAND_DELAY);
+          currentHeroes = currentHeroes.filter((h) => h.heroId !== hero.heroId);
         } catch (err) {}
         await delay(COMMAND_DELAY);
       }
@@ -1879,11 +1945,57 @@ const applyLineup = async (lineup) => {
     await delay(COMMAND_DELAY);
     currentHeroes = getTeamHeroes(data2.teamInfo);
 
-    for (const targetHero of targetHeroes) {
+    const needPositionFix = targetHeroes.some((targetHero) => {
       const currentHero = currentHeroes.find(
         (h) => h.heroId === targetHero.heroId,
       );
-      if (!currentHero) {
+      return !currentHero || currentHero.position !== targetHero.position;
+    });
+
+    if (needPositionFix) {
+      const correctHeroes = currentHeroes.filter((h) => {
+        const target = targetHeroes.find((t) => t.heroId === h.heroId);
+        return target && target.position === h.position;
+      });
+
+      const heroesToRemove = currentHeroes.filter((h) => {
+        const target = targetHeroes.find((t) => t.heroId === h.heroId);
+        return !target || target.position !== h.position;
+      });
+
+      const keepHero
+        = correctHeroes.length > 0
+          ? correctHeroes[0]
+          : heroesToRemove.length > 0
+            ? heroesToRemove.pop()
+            : null;
+
+      for (const hero of heroesToRemove) {
+        try {
+          await tokenStore.sendMessageWithPromise(
+            tokenId,
+            "hero_gobackbattle",
+            {
+              slot: hero.position,
+            },
+          );
+          await delay(COMMAND_DELAY);
+        } catch (err) {}
+      }
+
+      const heroesToDeploy = targetHeroes.filter((t) => {
+        if (
+          keepHero
+          && t.heroId === keepHero.heroId
+          && t.position === keepHero.position
+        ) {
+          return false;
+        }
+        const current = currentHeroes.find((h) => h.heroId === t.heroId);
+        return !current || current.position !== t.position;
+      });
+
+      for (const targetHero of heroesToDeploy) {
         try {
           await tokenStore.sendMessageWithPromise(
             tokenId,
@@ -1893,31 +2005,8 @@ const applyLineup = async (lineup) => {
               slot: targetHero.position,
             },
           );
-        } catch (err) {}
-        await delay(COMMAND_DELAY);
-      } else if (currentHero.position !== targetHero.position) {
-        try {
-          await tokenStore.sendMessageWithPromise(
-            tokenId,
-            "hero_gobackbattle",
-            {
-              slot: currentHero.position,
-            },
-          );
-          await delay(COMMAND_DELAY);
-          try {
-            await tokenStore.sendMessageWithPromise(
-              tokenId,
-              "hero_gointobattle",
-              {
-                heroId: targetHero.heroId,
-                slot: targetHero.position,
-              },
-            );
-          } catch (err) {}
           await delay(COMMAND_DELAY);
         } catch (err) {}
-        await delay(COMMAND_DELAY);
       }
     }
 
@@ -2001,6 +2090,14 @@ const applyLineup = async (lineup) => {
           }
         }
 
+        // 如果还是没有 artifactId，尝试从当前英雄数据中获取
+        if (!artifactId) {
+          const currentHeroData = currentHeroes[String(targetHero.heroId)];
+          if (currentHeroData?.artifactId && currentHeroData.artifactId !== -1) {
+            artifactId = currentHeroData.artifactId;
+          }
+        }
+
         if (!artifactId) continue;
 
         const currentHolderId = artifactToHero[artifactId];
@@ -2018,6 +2115,7 @@ const applyLineup = async (lineup) => {
                 heroId: currentHolderId,
               },
             );
+            await delay(COMMAND_DELAY);
           } catch (err) {}
           await delay(COMMAND_DELAY);
         }
@@ -2385,6 +2483,20 @@ const importLineups = async ({ file }) => {
   }
 };
 
+const confirmClearLineups = () => {
+  dialog.warning({
+    title: "确认清空",
+    content: `确定要清空所有已保存的阵容吗？此操作不可恢复。`,
+    positiveText: "确定",
+    negativeText: "取消",
+    onPositiveClick: () => {
+      savedLineups.value = [];
+      saveLineupsToStorage();
+      message.success("已清空所有阵容配置");
+    },
+  });
+};
+
 const switchTeam = async (teamId) => {
   if (teamId === currentTeamId.value) return;
 
@@ -2409,7 +2521,7 @@ const switchTeam = async (teamId) => {
       teamId,
     });
 
-    await delay(500);
+    await delay(COMMAND_DELAY);
 
     currentTeamId.value = teamId;
     message.success(`已切换到阵容 ${teamId}`);

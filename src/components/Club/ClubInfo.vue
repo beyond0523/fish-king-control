@@ -612,6 +612,7 @@ import { $emit } from "@/stores/events";
 import { HERO_DICT, legacycolor, HeroFillInfo, getLineupType, LINEUP_RULES } from "@/utils/HeroList";
 import html2canvas from 'html2canvas';
 import { downloadCanvasAsImage } from "@/utils/imageExport";
+import { copyText } from "@/utils/tool";
 
 const tokenStore = useTokenStore();
 const message = useMessage();
@@ -1062,8 +1063,18 @@ const memberColumns = computed(() => {
               height: "32px",
               borderRadius: "50%",
               objectFit: "cover",
+              cursor: "pointer",
             },
             alt: row.name,
+            title: "点击复制人员ID",
+            onClick: async () => {
+              const result = await copyText(row?.roleId);
+              if (result) {
+                message.success("人员ID已复制到剪贴板");
+              } else {
+                message.error("人员ID复制失败，请手动复制");
+              }
+            }
           });
         }
         return h(

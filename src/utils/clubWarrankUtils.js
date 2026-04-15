@@ -161,7 +161,7 @@ const allianceConfig = [
     value: "正义联盟",
   },
   {
-    keywords: ["龙盟", "龍盟"],
+    keywords: ["龙盟", "龍盟", "龍", "龙"],
     value: "龙盟",
   },
   {
@@ -169,7 +169,7 @@ const allianceConfig = [
     value: "梦盟",
   },
   {
-    keywords: ["曦盟"],
+    keywords: ["曦盟", "曦"],
     value: "曦盟",
   },
 ];

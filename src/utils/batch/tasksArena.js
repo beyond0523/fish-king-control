@@ -177,13 +177,19 @@ export function createTasksArena(deps) {
           }
         }
         await new Promise((r) => setTimeout(r, delayConfig.battle));
-        if (Isswitching) {
+        if (tokenSettings.taskCompleteFormation && tokenSettings.taskCompleteFormation !== tokenSettings.arenaFormation) {
+          await new Promise((r) => setTimeout(r, 1000));
           await tokenStore.sendMessageWithPromise(
             tokenId,
             "presetteam_saveteam",
-            { teamId: currentFormation },
+            { teamId: tokenSettings.taskCompleteFormation },
             5000,
           );
+          addLog({
+            time: new Date().toLocaleTimeString(),
+            message: `${token.name} 任务完成，切换到阵容${tokenSettings.taskCompleteFormation}`,
+            type: "info",
+          });
         }
         tokenStatus.value[tokenId] = "completed";
         addLog({

@@ -21,7 +21,11 @@
       flex-height
       :scroll-x="650"
       style="height: 600px"
-    />
+    >
+      <template #empty>
+        <n-empty description="请输入BOSS号并点击查询按钮获取具体的伤害信息"/>
+      </template>
+    </n-data-table>
   </div>
 </template>
 
