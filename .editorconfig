@@ -1,0 +1,21 @@
+# 告诉编辑器：这是根配置，不要再向上找了
+root = true
+
+# 匹配所有文件
+[*]
+charset = utf-8
+indent_style = space
+indent_size = 2
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# 针对特定文件类型覆盖规则
+[*.md]
+trim_trailing_whitespace = false
+
+[*.{js,ts,vue}]
+indent_size = 2
+
+[*.{json,yml,yaml}]
+indent_size = 2

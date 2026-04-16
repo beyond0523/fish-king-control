@@ -12,9 +12,10 @@
     "package.json": "package-lock.json, pnpm*,.npmrc, .yarnrc*, yarn*, .editorconfig"
   },
   "editor.codeActionsOnSave": {
-    "source.fixAll": "explicit"
+    "source.fixAll": "never"
   },
   "editor.tabSize": 2,
   "editor.detectIndentation": false,
   "i18n-ally.sourceLanguage": "zh-CN",
+  "editor.formatOnSave": false,
 }

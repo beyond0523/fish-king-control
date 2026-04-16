@@ -42,7 +42,7 @@
           <n-button
             type="info"
             size="small"
-            @click="savedLineupsModalVisible = true"
+            @click="selectedTeamTab = currentTeamId;savedLineupsModalVisible = true"
           >
             已保存阵容 ({{ savedLineups.length }})
           </n-button>
@@ -238,6 +238,12 @@
                     }}</span>
                   </div>
                   <div class="lineup-quick-actions">
+                    <n-button
+                      size="tiny"
+                      @click.stop="copyText(lineup.name)"
+                    >
+                      复制名称
+                    </n-button>
                     <n-button
                       size="tiny"
                       @click.stop="renameLineup(savedLineups.indexOf(lineup))"
@@ -587,6 +593,7 @@ import {
   weapon,
   color,
 } from "@/utils/HeroList.js";
+import { copyText } from "@/utils/tool";
 
 const tokenStore = useTokenStore();
 const message = useMessage();
@@ -657,6 +664,11 @@ const draggedHeroId = ref(null);
 const dragOverPosition = ref(null);
 
 const STORAGE_KEY = "saved_lineups";
+
+const showSavedLineupsModal = () => {
+  selectedTeamTab = currentTeamId;
+  savedLineupsModalVisible = true;
+}
 
 const syncLegionResearch = async (tokenId, targetResearch) => {
   if (!targetResearch || Object.keys(targetResearch).length === 0) {

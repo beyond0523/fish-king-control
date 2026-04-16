@@ -50,16 +50,16 @@
     <HangUpStatusCard v-show="activeSection === 'daily'" />
 
     <!-- 无限阵容助手（提取组件） -->
-    <Unlimitedlineup v-show="activeSection === 'tools'" />
+    <Unlimitedlineup v-if="activeSection === 'tools'" />
 
     <!-- 宝箱助手（提取组件） -->
-    <BoxHelperCard v-show="activeSection === 'tools'" />
+    <BoxHelperCard v-if="activeSection === 'tools'" />
 
     <!-- 钓鱼助手（提取组件） -->
-    <FishHelperCard v-show="activeSection === 'tools'" />
+    <FishHelperCard v-if="activeSection === 'tools'" />
 
     <!-- 招募助手（提取组件） -->
-    <RecruitHelperCard v-show="activeSection === 'tools'" />
+    <RecruitHelperCard v-if="activeSection === 'tools'" />
 
     <!-- 升星助手（提取组件） -->
     <StarUpgradeCard v-if="activeSection === 'tools'" />
@@ -160,13 +160,13 @@
     <ClubCarKing v-if="activeSection === 'club'" />
 
     <!-- 月度任务进度（提取组件） -->
-    <MonthlyTasksCard v-show="activeSection === 'activity'" />
+    <MonthlyTasksCard v-if="activeSection === 'activity'" />
 
     <!-- 咸鱼大冲关（提取组件） -->
-    <StudyChallengeCard v-show="activeSection === 'activity'" />
+    <StudyChallengeCard v-if="activeSection === 'activity'" />
 
     <!-- 换皮闯关 -->
-    <SkinChallengeCard v-show="activeSection === 'activity'" />
+    <SkinChallengeCard v-if="activeSection === 'activity'" />
 
     <!-- 盐场分组（包含盐场、周战绩、月战绩） -->
     <div class="salt-field-group" v-if="activeSection === 'saltFieldGroup'">
@@ -305,44 +305,50 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from "vue";
-import { useTokenStore } from "@/stores/tokenStore";
+import { ref, computed, onMounted, onUnmounted, watch, defineAsyncComponent } from "vue";
 import { useMessage } from "naive-ui";
+
+import TowerStatus from "./Tower/TowerStatus.vue";
+import WeirdTowerStatus from "./Tower/WeirdTowerStatus.vue";
+import BottleHelperCard from "./cards/BottleHelperCard.vue";
+import HangUpStatusCard from "./cards/HangUpStatusCard.vue";
+
+import { useTokenStore } from "@/stores/tokenStore";
 import {
   preloadQuestions,
   getQuestionCount,
 } from "@/utils/studyQuestionsFromJSON.js";
-import BottleHelperCard from "./cards/BottleHelperCard.vue";
-import BoxHelperCard from "./cards/BoxHelperCard.vue";
-import FishHelperCard from "./cards/FishHelperCard.vue";
-import RecruitHelperCard from "./cards/RecruitHelperCard.vue";
-import StarUpgradeCard from "./cards/StarUpgradeCard.vue";
-import HangUpStatusCard from "./cards/HangUpStatusCard.vue";
-import MonthlyTasksCard from "./cards/MonthlyTasksCard.vue";
-import StudyChallengeCard from "./cards/StudyChallengeCard.vue";
-import SkinChallengeCard from "./cards/SkinChallengeCard.vue";
-import ClubWarrank from "./Club/ClubWarrank.vue";
-import ClubMonthBattleRecords from "./Club/ClubMonthBattleRecords.vue";
-import ClubBattleRecords from "./Club/ClubBattleRecords.vue";
-import PeachBattleRecords from "./Club/PeachBattleRecords.vue";
-import TopRankList from "./cards/TopRankListPageCard.vue";
-import TopClubList from "./cards/TopClubListPageCard.vue";
-import GreatRouteRankList from "./Club/GreatRouteRankListPageCard.vue";
-import GoldClubList from "./cards/GoldRankListPageCard.vue";
-import FightPvp from "./cards/FightPvp.vue";
-import FightHelperCard from "./cards/FightHelperCard.vue";
-import DreamHelperCard from "./cards/DreamHelperCard.vue";
-import HeroUpgradeCard from "./cards/HeroUpgradeCard.vue";
-import ConsumptionProgressCard from "./cards/ConsumptionProgressCard.vue";
-import RefineHelperCard from "./cards/RefineHelperCard.vue";
-import TowerStatus from "./Tower/TowerStatus.vue";
-import WeirdTowerStatus from "./Tower/WeirdTowerStatus.vue";
-import BossTower from "./Tower/BossTower.vue";
-import PeachInfo from "./Club/PeachInfo.vue";
-import ServerRankList from "./cards/ServerRankListPageCard.vue";
-import LegionWarMap from "./Club/LegionWarMap.vue";
-import LegionWarStatistics from "./Club/LegionWarStatistics.vue";
-import Unlimitedlineup from "./cards/Unlimitedlineup.vue";
+
+/** 按需异步引入组件，提升效率，加快渲染 */
+const BoxHelperCard = defineAsyncComponent(() => import("./cards/BoxHelperCard.vue"));
+const FishHelperCard = defineAsyncComponent(() => import("./cards/FishHelperCard.vue"));
+const RecruitHelperCard = defineAsyncComponent(() => import("./cards/RecruitHelperCard.vue"));
+const StarUpgradeCard = defineAsyncComponent(() => import("./cards/StarUpgradeCard.vue"));
+const MonthlyTasksCard = defineAsyncComponent(() => import("./cards/MonthlyTasksCard.vue"));
+const StudyChallengeCard = defineAsyncComponent(() => import("./cards/StudyChallengeCard.vue"));
+const SkinChallengeCard = defineAsyncComponent(() => import("./cards/SkinChallengeCard.vue"));
+const ClubWarrank = defineAsyncComponent(() => import("./Club/ClubWarrank.vue"));
+const ClubMonthBattleRecords = defineAsyncComponent(() => import("./Club/ClubMonthBattleRecords.vue"));
+const ClubBattleRecords = defineAsyncComponent(() => import("./Club/ClubBattleRecords.vue"));
+const PeachBattleRecords = defineAsyncComponent(() => import("./Club/PeachBattleRecords.vue"));
+const TopRankList = defineAsyncComponent(() => import("./cards/TopRankListPageCard.vue"));
+const TopClubList = defineAsyncComponent(() => import("./cards/TopClubListPageCard.vue"));
+const GreatRouteRankList = defineAsyncComponent(() => import("./Club/GreatRouteRankListPageCard.vue"));
+const GoldClubList = defineAsyncComponent(() => import("./cards/GoldRankListPageCard.vue"));
+const FightPvp = defineAsyncComponent(() => import("./cards/FightPvp.vue"));
+const FightHelperCard = defineAsyncComponent(() => import("./cards/FightHelperCard.vue"));
+const DreamHelperCard = defineAsyncComponent(() => import("./cards/DreamHelperCard.vue"));
+const HeroUpgradeCard = defineAsyncComponent(() => import("./cards/HeroUpgradeCard.vue"));
+const ConsumptionProgressCard = defineAsyncComponent(() => import("./cards/ConsumptionProgressCard.vue"));
+const RefineHelperCard = defineAsyncComponent(() => import("./cards/RefineHelperCard.vue"));
+const BossTower = defineAsyncComponent(() => import("./Tower/BossTower.vue"));
+const PeachInfo = defineAsyncComponent(() => import("./Club/PeachInfo.vue"));
+const ServerRankList = defineAsyncComponent(() => import("./cards/ServerRankListPageCard.vue"));
+const LegionWarMap = defineAsyncComponent(() => import("./Club/LegionWarMap.vue"));
+const LegionWarStatistics = defineAsyncComponent(() => import("./Club/LegionWarStatistics.vue"));
+const Unlimitedlineup = defineAsyncComponent(() => import("./cards/Unlimitedlineup.vue"));
+const ClubInfo = defineAsyncComponent(() => import("./Club/ClubInfo.vue"));
+const ClubCarKing = defineAsyncComponent(() => import("./Club/ClubCarKing.vue"));
 
 const tokenStore = useTokenStore();
 const message = useMessage();

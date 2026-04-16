@@ -14,21 +14,13 @@
         </div>
 
         <div class="nav-menu">
-          <router-link
-            to="/admin/dashboard"
-            class="nav-item"
-            active-class="active"
-          >
+          <router-link to="/admin/dashboard" class="nav-item" active-class="active">
             <n-icon>
               <Home />
             </n-icon>
             <span>首页</span>
           </router-link>
-          <router-link
-            to="/admin/game-features"
-            class="nav-item"
-            active-class="active"
-          >
+          <router-link to="/admin/game-features" class="nav-item" active-class="active">
             <n-icon>
               <Cube />
             </n-icon>
@@ -40,27 +32,24 @@
             </n-icon>
             <span>Token管理</span>
           </router-link>
-          <router-link
-            to="/admin/batch-daily-tasks"
-            class="nav-item"
-            active-class="active"
-          >
+          <router-link to="/admin/batch-daily-tasks" class="nav-item" active-class="active">
             <n-icon>
               <Layers />
             </n-icon>
             <span>批量日常</span>
           </router-link>
-          <router-link
-            to="/admin/message-test"
-            class="nav-item"
-            active-class="active"
-          >
+          <router-link to="/admin/message-test" class="nav-item" active-class="active">
             <n-icon>
               <ChatbubbleEllipsesSharp />
             </n-icon>
             <span>消息测试</span>
           </router-link>
-          <router-link to="/admin/legion-war" class="nav-item" active-class="active"  v-if="isNowInLegionWarTime()" >
+          <router-link
+            to="/admin/legion-war"
+            class="nav-item"
+            active-class="active"
+            v-if="isNowInLegionWarTime()"
+          >
             <n-icon>
               <LockOpen />
             </n-icon>
@@ -79,9 +68,7 @@
                 size="medium"
                 fallback-src="/icons/xiaoyugan.png"
               />
-              <span class="username">{{
-                selectedToken?.name || "未选择Token"
-              }}</span>
+              <span class="username">{{ selectedToken?.name || '未选择Token' }}</span>
               <n-icon>
                 <ChevronDown />
               </n-icon>
@@ -90,17 +77,9 @@
         </div>
       </div>
     </nav>
-    <n-drawer
-      v-model:show="isMobileMenuOpen"
-      placement="left"
-      style="width: 260px"
-    >
+    <n-drawer v-model:show="isMobileMenuOpen" placement="left" style="width: 260px">
       <div class="drawer-menu">
-        <router-link
-          to="/admin/dashboard"
-          class="drawer-item"
-          @click="isMobileMenuOpen = false"
-        >
+        <router-link to="/admin/dashboard" class="drawer-item" @click="isMobileMenuOpen = false">
           <n-icon>
             <Home />
           </n-icon>
@@ -116,21 +95,13 @@
           </n-icon>
           <span>游戏功能</span>
         </router-link>
-        <router-link
-          to="/tokens"
-          class="drawer-item"
-          @click="isMobileMenuOpen = false"
-        >
+        <router-link to="/tokens" class="drawer-item" @click="isMobileMenuOpen = false">
           <n-icon>
             <PersonCircle />
           </n-icon>
           <span>Token管理</span>
         </router-link>
-        <router-link
-          to="/admin/daily-tasks"
-          class="drawer-item"
-          @click="isMobileMenuOpen = false"
-        >
+        <router-link to="/admin/daily-tasks" class="drawer-item" @click="isMobileMenuOpen = false">
           <n-icon>
             <Settings />
           </n-icon>
@@ -146,27 +117,24 @@
           </n-icon>
           <span>批量日常</span>
         </router-link>
-        <router-link
-          to="/admin/message-test"
-          class="drawer-item"
-          @click="isMobileMenuOpen = false"
-        >
+        <router-link to="/admin/message-test" class="drawer-item" @click="isMobileMenuOpen = false">
           <n-icon>
             <ChatbubbleEllipsesSharp />
           </n-icon>
           <span>消息测试</span>
         </router-link>
-          <router-link to="/admin/legion-war" class="nav-item" active-class="active"  v-if="isNowInLegionWarTime()" >
-            <n-icon>
-              <LockOpen />
-            </n-icon>
-            <span>实时盐场</span>
-          </router-link>
         <router-link
-          to="/admin/profile"
-          class="drawer-item"
-          @click="isMobileMenuOpen = false"
+          to="/admin/legion-war"
+          class="nav-item"
+          active-class="active"
+          v-if="isNowInLegionWarTime()"
         >
+          <n-icon>
+            <LockOpen />
+          </n-icon>
+          <span>实时盐场</span>
+        </router-link>
+        <router-link to="/admin/profile" class="drawer-item" @click="isMobileMenuOpen = false">
           <n-icon>
             <Settings />
           </n-icon>
@@ -181,12 +149,8 @@
 </template>
 
 <script setup>
-import {
-  useTokenStore,
-  selectedToken,
-  selectedTokenId,
-} from "@/stores/tokenStore";
-import ThemeToggle from "@/components/Common/ThemeToggle.vue";
+import { useTokenStore, selectedToken, selectedTokenId } from '@/stores/tokenStore'
+import ThemeToggle from '@/components/Common/ThemeToggle.vue'
 import {
   Home,
   PersonCircle,
@@ -194,39 +158,40 @@ import {
   Settings,
   ChevronDown,
   ChatbubbleEllipsesSharp,
-  LockClosedSharp,LockOpen,
+  LockClosedSharp,
+  LockOpen,
   Menu,
   Layers,
-} from "@vicons/ionicons5";
+} from '@vicons/ionicons5'
 
 import { useRouter } from 'vue-router'
 import { useMessage } from 'naive-ui'
 import { ref } from 'vue'
 import { isNowInLegionWarTime } from '@/utils/clubBattleUtils'
 
-const tokenStore = useTokenStore();
-const router = useRouter();
-const message = useMessage();
+const tokenStore = useTokenStore()
+const router = useRouter()
+const message = useMessage()
 
-const isMobileMenuOpen = ref(false);
+const isMobileMenuOpen = ref(false)
 
 const userMenuOptions = [
   {
-    label: "清除所有Token并退出",
-    key: "logout",
+    label: '清除所有Token并退出',
+    key: 'logout',
   },
-];
+]
 
 // 方法
 const handleUserAction = async (key) => {
   switch (key) {
-    case "logout":
-      await tokenStore.clearAllTokens();
-      message.success("已清除所有Token");
-      router.push("/tokens");
-      break;
+    case 'logout':
+      await tokenStore.clearAllTokens()
+      message.success('已清除所有Token')
+      router.push('/tokens')
+      break
   }
-};
+}
 </script>
 
 <style scoped lang="scss">

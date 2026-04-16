@@ -600,19 +600,21 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, h, reactive, watch, nextTick } from "vue";
+import { ref, computed, onMounted, onUnmounted, h, reactive, watch, nextTick, defineAsyncComponent } from "vue";
 import { useMessage, useDialog, NDataTable, NModal, NAvatar, NTag, NDescriptions, NDescriptionsItem, NButton, NSpace, NIcon, NGrid, NGi, NStatistic, NThing, NAlert, NCollapse, NCollapseItem, NCard } from "naive-ui";
 import { useTokenStore } from "@/stores/tokenStore";
 import { Copy, Refresh, People, BarChart, Flame, Skull, Megaphone, Person, ShieldCheckmark } from "@vicons/ionicons5";
-import ClubHistoryRecords from "./ClubHistoryRecords.vue";
-import ClubWeirdTowerInfo from "./ClubWeirdTowerInfo.vue";
-import CarScoreInfo from "./CarScoreInfo.vue";
-import BossRank from "./BossRank.vue";
 import { $emit } from "@/stores/events";
 import { HERO_DICT, legacycolor, HeroFillInfo, getLineupType, LINEUP_RULES } from "@/utils/HeroList";
 import html2canvas from 'html2canvas';
 import { downloadCanvasAsImage } from "@/utils/imageExport";
 import { copyText } from "@/utils/tool";
+
+/** 按需异步引入组件，提升效率，加快渲染 */
+const ClubHistoryRecords = defineAsyncComponent(() => import("./ClubHistoryRecords.vue"));
+const ClubWeirdTowerInfo = defineAsyncComponent(() => import("./ClubWeirdTowerInfo.vue"));
+const CarScoreInfo = defineAsyncComponent(() => import("./CarScoreInfo.vue"));
+const BossRank = defineAsyncComponent(() => import("./BossRank.vue"));
 
 const tokenStore = useTokenStore();
 const message = useMessage();
